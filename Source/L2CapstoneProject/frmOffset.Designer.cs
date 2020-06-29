@@ -149,6 +149,7 @@
             this.Name = "frmOffset";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Add Phase/Amplitude Point";
+            this.Load += new System.EventHandler(this.frmOffset_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numPhase)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAmp)).EndInit();
             this.groupBox1.ResumeLayout(false);

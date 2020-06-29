@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.ModularInstruments.SystemServices.DeviceServices;
+using System.Collections.Generic;
 
 namespace L2CapstoneProject
 {
@@ -11,6 +12,8 @@ namespace L2CapstoneProject
     {
         NIRfsg rfsg;
         RFmxInstrMX instr;
+        private List<PhaseAmplitudeOffset> PAOList =  new List<PhaseAmplitudeOffset>();
+
 
         public frmBeamformerPavtController()
         {
@@ -36,7 +39,23 @@ namespace L2CapstoneProject
         private void btnAddOffset_Click(object sender, EventArgs e)
         {
             AddOffset();
+            UpdateListBox();
         }
+
+        private void UpdateListBox()
+        {
+            lsvOffsets.Items.Clear();
+            foreach (PhaseAmplitudeOffset currentPAO in PAOList)
+            {
+                string subitem1 = currentPAO.Phase.ToString();
+                string subitem2 = currentPAO.Amplitude.ToString();
+                ListViewItem newItem = new ListViewItem(subitem1);
+                newItem.SubItems.Add(subitem2);
+                
+                lsvOffsets.Items.Add(newItem);
+            }
+        }
+
         private void EditListViewItem(object sender, EventArgs e)
         {
             if (CheckSelection(out int selected))
@@ -124,7 +143,7 @@ namespace L2CapstoneProject
 
             if (r == DialogResult.OK)
             {
-                // Add the offset to the listview
+                PAOList.Add(new PhaseAmplitudeOffset(dialog.Phase, dialog.Amplitude));
             }
         }
         private void EditOffset(int selected)

@@ -6,6 +6,8 @@ namespace L2CapstoneProject
     public partial class frmOffset : Form
     {
         public enum Mode { Add, Edit }
+        public double Phase { get; set; }
+        public double Amplitude { get; set; }
 
         public Mode ViewMode { get; }
 
@@ -27,7 +29,21 @@ namespace L2CapstoneProject
 
         private void btnOk_Click(object sender, EventArgs e)
         {
+            try
+            {
+                Amplitude = Convert.ToDouble(numAmp.Value);
+                Phase = Convert.ToDouble(numPhase.Value);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Incorrect value: " + ex);
+            }
             Close();
+        }
+
+        private void frmOffset_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

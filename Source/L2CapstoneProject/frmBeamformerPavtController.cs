@@ -39,28 +39,17 @@ namespace L2CapstoneProject
         private void btnAddOffset_Click(object sender, EventArgs e)
         {
             AddOffset();
-            UpdateListBox();
+            
         }
 
-        private void UpdateListBox()
-        {
-            lsvOffsets.Items.Clear();
-            foreach (PhaseAmplitudeOffset currentPAO in PAOList)
-            {
-                string subitem1 = currentPAO.Phase.ToString();
-                string subitem2 = currentPAO.Amplitude.ToString();
-                ListViewItem newItem = new ListViewItem(subitem1);
-                newItem.SubItems.Add(subitem2);
-                
-                lsvOffsets.Items.Add(newItem);
-            }
-        }
+        
 
         private void EditListViewItem(object sender, EventArgs e)
         {
             if (CheckSelection(out int selected))
             {
                 EditOffset(selected);
+                
             }
         }
         private void btnDelete_Click(object sender, EventArgs e)
@@ -144,6 +133,7 @@ namespace L2CapstoneProject
             if (r == DialogResult.OK)
             {
                 PAOList.Add(new PhaseAmplitudeOffset(dialog.Phase, dialog.Amplitude));
+                UpdateListBox();
             }
         }
         private void EditOffset(int selected)
@@ -155,7 +145,23 @@ namespace L2CapstoneProject
 
             if (r == DialogResult.OK)
             {
-                // Edit the offset shown in the listview
+                PAOList[selected].Phase = dialog.Phase;
+                PAOList[selected].Amplitude = dialog.Amplitude;
+                UpdateListBox();
+            }
+        }
+        private void UpdateListBox()
+        {
+            lsvOffsets.Items.Clear();
+            foreach (PhaseAmplitudeOffset currentPAO in PAOList)
+            {
+                string subitem1 = currentPAO.Phase.ToString();
+                string subitem2 = currentPAO.Amplitude.ToString();
+                ListViewItem newItem = new ListViewItem(subitem1);
+                newItem.SubItems.Add(subitem2);
+                lsvOffsets.Items.Add(newItem);
+
+                
             }
         }
 
@@ -163,6 +169,8 @@ namespace L2CapstoneProject
         private void RemoveOffset(int selected)
         {
             lsvOffsets.Items.RemoveAt(selected);
+            PAOList.RemoveAt(selected);
+            UpdateListBox();
         }
         #endregion
         #region Utility Functions

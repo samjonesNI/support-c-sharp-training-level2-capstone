@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace L2CapstoneProject
 {
-    class PhaseAmplitudeOffset
+    public class PhaseAmplitudeOffset
     {
         public PhaseAmplitudeOffset()
         {

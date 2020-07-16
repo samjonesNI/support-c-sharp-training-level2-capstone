@@ -13,6 +13,8 @@ namespace L2CapstoneProject
         NIRfsg rfsg;
         RFmxInstrMX instr;
         private List<PhaseAmplitudeOffset> PAOList =  new List<PhaseAmplitudeOffset>();
+        Beamformer beamformer;
+
 
 
         public frmBeamformerPavtController()
@@ -201,11 +203,35 @@ namespace L2CapstoneProject
             Initialize();
             StartGeneration();
         }
-
+        
         public void Initialize()
         {
             string rfsgResourceName, instrResourceName;
+            rfsgResourceName = rfsgNameComboBox.Text;
+            //instrResourceName = rfsaNameComboBox.Text;
+            rfsg = new NIRfsg(rfsgResourceName, true, false);
 
+            //simulated DUT
+            beamformer = new SimulatedSteppedBeamformer(rfsg);                       
+            
+            //Any beamformer
+            beamformer.ConnectDUT();
+        }
+
+        public void StartGeneration()
+        {
+            
+            //This code only needs to exist until measurement class is created
+            beamformer.StimulateDUT();
+            //Replace StimulateDUT with the following code
+            //measure.StimulateDUT();
+            foreach (PhaseAmplitudeOffset pao in PAOList)
+            {
+                beamformer.WriteOffset(pao);
+                //measure();
+                System.Threading.Thread.Sleep(100);
+            }
+            beamformer.DisconnectDUT();
         }
     }
 }

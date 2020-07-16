@@ -23,7 +23,7 @@ namespace L2CapstoneProject
                     break;
                 case Mode.Edit:
                     this.Text = "Edit Offset";
-
+                   
                     break;
             }
         }

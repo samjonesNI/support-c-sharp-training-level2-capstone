@@ -3,67 +3,58 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NationalInstruments.ModularInstruments.NIRfsg;
 
 namespace L2CapstoneProject
 {
     public abstract class Beamformer
     {
         //DUT control methods
-        public abstract void ConnectDUT();
-        public abstract void StimulateDUT();
+        public abstract bool ConnectDUT();
         public abstract void DisconnectDUT();
 
         //Used to change current pao for stepped beamformer
-        public abstract void WriteOffset(PhaseAmplitudeOffset pao);
-
+        public virtual void WriteOffset(PhaseAmplitudeOffset pao) { }
+        public abstract void StimulateDUT();
         //Loads a list of pao's into memory for the sequenced beamformer
-        public abstract void WriteSequence(List<PhaseAmplitudeOffset> paoList);
-        public abstract void InitiateSequence();
-        public abstract void AbortSequence();
+        public virtual void WriteSequence(List<PhaseAmplitudeOffset> paoList){ }
+        public virtual void InitiateSequence() { }
+        public virtual void AbortSequence() { }
 
         //Changes the duration of each subsequence when using sequenced beamformer
         public decimal SubsequenceLength { get; set; }
     }
-    public class SimulatedBeamformer : Beamformer
-    {                    
-        public override void ConnectDUT()
+    public class SimulatedSteppedBeamformer : Beamformer
+    {
+        public SimulatedSteppedBeamformer(NIRfsg rfsg)
         {
-            //Simulated DUT, no connections
+            Rfsg = rfsg;
+        }
+
+        public NIRfsg Rfsg { get; set; }
+
+        public override bool ConnectDUT()
+        {
+            //Open session, set up configuration
+            return true;
         }
 
         public override void DisconnectDUT()
         {
-            //Simulated DUT, no connections
-        }
-
-        public override void InitiateSequence()
-        {
-            throw new NotImplementedException();
+            //Close session
         }
 
         public override void StimulateDUT()
         {
-            string resourceName;
-            double frequency, amplitude;
-
-            try
-            {
-                resourceName = rfsgNameComboBox
-            }
+            //Begin generation of CW
+            
+            throw new NotImplementedException();
         }
 
         public override void WriteOffset(PhaseAmplitudeOffset pao)
         {
             throw new NotImplementedException();
-        }
-
-        public override void WriteSequence(List<PhaseAmplitudeOffset> paoList)
-        {
-            throw new NotImplementedException();
-        }
-        public override void AbortSequence()
-        {
-            throw new NotImplementedException();
-        }
+        }      
+        
     }
 }

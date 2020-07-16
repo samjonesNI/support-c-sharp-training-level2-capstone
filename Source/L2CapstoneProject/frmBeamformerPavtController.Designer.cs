@@ -320,7 +320,7 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(380, 29);
+            this.btnStart.Location = new System.Drawing.Point(418, 30);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
             this.btnStart.TabIndex = 14;
@@ -360,7 +360,7 @@
             // btnStop
             // 
             this.btnStop.Enabled = false;
-            this.btnStop.Location = new System.Drawing.Point(461, 29);
+            this.btnStop.Location = new System.Drawing.Point(499, 30);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
             this.btnStop.TabIndex = 14;

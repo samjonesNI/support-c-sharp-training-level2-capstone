@@ -24,4 +24,46 @@ namespace L2CapstoneProject
         //Changes the duration of each subsequence when using sequenced beamformer
         public decimal SubsequenceLength { get; set; }
     }
+    public class SimulatedBeamformer : Beamformer
+    {                    
+        public override void ConnectDUT()
+        {
+            //Simulated DUT, no connections
+        }
+
+        public override void DisconnectDUT()
+        {
+            //Simulated DUT, no connections
+        }
+
+        public override void InitiateSequence()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void StimulateDUT()
+        {
+            string resourceName;
+            double frequency, amplitude;
+
+            try
+            {
+                resourceName = rfsgNameComboBox
+            }
+        }
+
+        public override void WriteOffset(PhaseAmplitudeOffset pao)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteSequence(List<PhaseAmplitudeOffset> paoList)
+        {
+            throw new NotImplementedException();
+        }
+        public override void AbortSequence()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

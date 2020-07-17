@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NationalInstruments.ModularInstruments.NIRfsg;
+using NationalInstruments;
+
+
 
 namespace L2CapstoneProject
 {
@@ -47,6 +50,7 @@ namespace L2CapstoneProject
         public override void StimulateDUT()
         {
             //Begin generation of CW
+            
             
             throw new NotImplementedException();
         }

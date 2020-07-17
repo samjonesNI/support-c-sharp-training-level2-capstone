@@ -5,6 +5,7 @@ using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.ModularInstruments.SystemServices.DeviceServices;
 using System.Collections.Generic;
 
+
 namespace L2CapstoneProject
 {
 
@@ -207,9 +208,18 @@ namespace L2CapstoneProject
         public void Initialize()
         {
             string rfsgResourceName, instrResourceName;
+            double frequency, power, mLength, mOffset;
+           
             rfsgResourceName = rfsgNameComboBox.Text;
+            frequency = (double)frequencyNumeric.Value;
+            power = (double)powerLevelNumeric.Value;
+
             //instrResourceName = rfsaNameComboBox.Text;
+            //mLength = (double)measurementLengthNumeric.Value;
+            //mOffset = (double)measurementOffsetNumeric.Value;
+
             rfsg = new NIRfsg(rfsgResourceName, true, false);
+            rfsg.RF.Configure(frequency, power);
 
             //simulated DUT
             beamformer = new SimulatedSteppedBeamformer(rfsg);                       

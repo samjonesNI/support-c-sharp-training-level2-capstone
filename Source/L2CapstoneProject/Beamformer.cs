@@ -17,7 +17,7 @@ namespace L2CapstoneProject
         public abstract void DisconnectDUT();
 
         //Used to change current pao for stepped beamformer
-        public virtual void WriteOffset(PhaseAmplitudeOffset pao) { }
+        public virtual void WriteOffset(PhaseAmplitudeOffset pao, double power) { }
         public abstract void StimulateDUT();
         //Loads a list of pao's into memory for the sequenced beamformer
         public virtual void WriteSequence(List<PhaseAmplitudeOffset> paoList){ }
@@ -44,6 +44,10 @@ namespace L2CapstoneProject
 
         public override void DisconnectDUT()
         {
+            if (Rfsg?.IsDisposed == false)
+            {
+                Rfsg.Abort();
+            }
             //Close session
         }
 
@@ -51,13 +55,17 @@ namespace L2CapstoneProject
         {
             //Begin generation of CW
             
-            
-            throw new NotImplementedException();
+            Rfsg.Initiate();
+            Rfsg.CheckGenerationStatus();
+
         }
 
-        public override void WriteOffset(PhaseAmplitudeOffset pao)
+        public override void WriteOffset(PhaseAmplitudeOffset pao, double power)
         {
-            throw new NotImplementedException();
+            
+            Rfsg.RF.PowerLevel = power + pao.Amplitude;
+            Rfsg.RF.PhaseOffset = pao.Phase;
+            
         }      
         
     }

@@ -88,6 +88,16 @@ namespace L2CapstoneProject
                 }
             }
         }
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            SetButtonState(true);
+            Initialize();
+            StartGeneration();
+        }
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            AbortGeneration();
+        }
 
         private void frmBeamformerPavtController_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -199,11 +209,7 @@ namespace L2CapstoneProject
 
         #endregion
 
-        private void btnStart_Click(object sender, EventArgs e)
-        {
-            Initialize();
-            StartGeneration();
-        }
+        
         
         public void Initialize()
         {
@@ -220,9 +226,10 @@ namespace L2CapstoneProject
 
             rfsg = new NIRfsg(rfsgResourceName, true, false);
             rfsg.RF.Configure(frequency, power);
-
+            
             //simulated DUT
-            beamformer = new SimulatedSteppedBeamformer(rfsg);                       
+            beamformer = new SimulatedSteppedBeamformer(rfsg);   
+            
             
             //Any beamformer
             beamformer.ConnectDUT();
@@ -237,11 +244,13 @@ namespace L2CapstoneProject
             //measure.StimulateDUT();
             foreach (PhaseAmplitudeOffset pao in PAOList)
             {
-                beamformer.WriteOffset(pao);
+                beamformer.WriteOffset(pao, (double)powerLevelNumeric.Value);
                 //measure();
-                System.Threading.Thread.Sleep(100);
+                System.Threading.Thread.Sleep(5000);
             }
             beamformer.DisconnectDUT();
         }
+
+        
     }
 }

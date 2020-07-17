@@ -366,6 +366,7 @@
             this.btnStop.TabIndex = 14;
             this.btnStop.Text = "St&op";
             this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // groupBox2
             // 

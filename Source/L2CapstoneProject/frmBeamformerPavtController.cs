@@ -206,11 +206,16 @@ namespace L2CapstoneProject
                 return false;
             }
         }
+        void DriverOperation_Warning(object sender, RfsgWarningEventArgs e)
+        {
+            // Display the rfsg warning
+            errorTextBox.Text = e.Message;
+        }
 
         #endregion
 
-        
-        
+
+
         public void Initialize()
         {
             string rfsgResourceName, instrResourceName;
@@ -226,6 +231,7 @@ namespace L2CapstoneProject
 
             rfsg = new NIRfsg(rfsgResourceName, true, false);
             rfsg.RF.Configure(frequency, power);
+            rfsg.DriverOperation.Warning += new EventHandler<RfsgWarningEventArgs>(DriverOperation_Warning);
             
             //simulated DUT
             beamformer = new SimulatedSteppedBeamformer(rfsg);   

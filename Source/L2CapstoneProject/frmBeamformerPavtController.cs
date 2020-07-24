@@ -91,7 +91,7 @@ namespace L2CapstoneProject
         private void btnStart_Click(object sender, EventArgs e)
         {
             SetButtonState(true);
-            Initialize();
+            InitializeGenerator();
             StartGeneration();
         }
         private void btnStop_Click(object sender, EventArgs e)
@@ -115,6 +115,7 @@ namespace L2CapstoneProject
                 rfsg.Abort();
             }
         }
+       
         private void CloseInstruments()
         {
             AbortGeneration();
@@ -216,22 +217,29 @@ namespace L2CapstoneProject
 
 
 
-        public void Initialize()
+        public void InitializeGenerator()
         {
+            //Create resource names
             string rfsgResourceName, instrResourceName;
             double frequency, power, mLength, mOffset;
            
+            //Update RFSG resources
             rfsgResourceName = rfsgNameComboBox.Text;
             frequency = (double)frequencyNumeric.Value;
             power = (double)powerLevelNumeric.Value;
 
-            //instrResourceName = rfsaNameComboBox.Text;
-            //mLength = (double)measurementLengthNumeric.Value;
-            //mOffset = (double)measurementOffsetNumeric.Value;
+            //Update RFSA resources
+            instrResourceName = rfsaNameComboBox.Text;
+            mLength = (double)measurementLengthNumeric.Value;
+            mOffset = (double)measurementOffsetNumeric.Value;
 
+            //Create and configure RFSG session
             rfsg = new NIRfsg(rfsgResourceName, true, false);
             rfsg.RF.Configure(frequency, power);
             rfsg.DriverOperation.Warning += new EventHandler<RfsgWarningEventArgs>(DriverOperation_Warning);
+
+            //Create and configure RFSA session
+            instr = new RFmxInstrMX(instrResourceName, "");
             
             //simulated DUT
             beamformer = new SimulatedSteppedBeamformer(rfsg);   
@@ -252,7 +260,7 @@ namespace L2CapstoneProject
             {
                 beamformer.WriteOffset(pao, (double)powerLevelNumeric.Value);
                 //measure();
-                System.Threading.Thread.Sleep(5000);
+                System.Threading.Thread.Sleep(1000);
             }
             beamformer.DisconnectDUT();
         }

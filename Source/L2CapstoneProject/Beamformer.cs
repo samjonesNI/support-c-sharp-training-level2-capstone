@@ -32,6 +32,7 @@ namespace L2CapstoneProject
         public SimulatedSteppedBeamformer(NIRfsg rfsg)
         {
             Rfsg = rfsg;
+            Rfsg.Triggers.StartTrigger.ExportedOutputTerminal = RfsgStartTriggerExportedOutputTerminal.PxiTriggerLine0;
         }
 
         public NIRfsg Rfsg { get; set; }
@@ -55,17 +56,17 @@ namespace L2CapstoneProject
         {
             //Begin generation of CW
             
-            Rfsg.Initiate();
+            Rfsg?.Initiate();
             Rfsg.CheckGenerationStatus();
 
         }
 
         public override void WriteOffset(PhaseAmplitudeOffset pao, double power)
         {
-            
+            Rfsg.Abort();
+            Rfsg.Initiate();
             Rfsg.RF.PowerLevel = power + pao.Amplitude;
             Rfsg.RF.PhaseOffset = pao.Phase;
-            
         }      
         
     }

@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.RFmx.InstrMX;
+using NationalInstruments.RFmx.SpecAnMX;
 using NationalInstruments.ModularInstruments.SystemServices.DeviceServices;
 using System.Collections.Generic;
 
@@ -15,6 +16,7 @@ namespace L2CapstoneProject
         RFmxInstrMX instr;
         private List<PhaseAmplitudeOffset> PAOList =  new List<PhaseAmplitudeOffset>();
         Beamformer beamformer;
+        RFmxSpecAnMX specAn;
 
 
 
@@ -91,7 +93,7 @@ namespace L2CapstoneProject
         private void btnStart_Click(object sender, EventArgs e)
         {
             SetButtonState(true);
-            InitializeGenerator();
+            InitializeInstruments();
             StartGeneration();
         }
         private void btnStop_Click(object sender, EventArgs e)
@@ -217,7 +219,7 @@ namespace L2CapstoneProject
 
 
 
-        public void InitializeGenerator()
+        public void InitializeInstruments()
         {
             //Create resource names
             string rfsgResourceName, instrResourceName;
@@ -240,7 +242,9 @@ namespace L2CapstoneProject
 
             //Create and configure RFSA session
             instr = new RFmxInstrMX(instrResourceName, "");
-            
+            specAn = instr.GetSpecAnSignalConfiguration();
+            instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
+
             //simulated DUT
             beamformer = new SimulatedSteppedBeamformer(rfsg);   
             

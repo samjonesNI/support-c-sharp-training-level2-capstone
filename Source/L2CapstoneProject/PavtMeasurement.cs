@@ -22,6 +22,50 @@ namespace L2CapstoneProject
         public NIRfsg Rfsg { get; set; }
         public RFmxInstrMX Instr { get; set; }
 
+        public void Run()
+        {
+            try
+            {
+                
+                InitializeInstr();
+                ConfigureSpecAn();
+                RetrieveResults();
+                UpdateResults();
+            }
+            catch (Exception ex)
+            {
+                DisplayError(ex);
+            }
+            finally
+            {
+                /* Close session */
+                CloseSession();
+                
+            }
+        }
+
+        
+
+        private void DisplayError(Exception ex)
+        {
+            Console.WriteLine("ERROR:\n" + ex.GetType() + ": " + ex.Message);
+        }
+
+       
+
+
+        private void InitializeInstr()
+        {
+           
+        }
+
+        
+
+        private void ConfigureSpecAn()
+        {
+            throw new NotImplementedException();
+        }
+
         public void StimulateDUT()
         {
             //Begin generation of CW
@@ -29,6 +73,19 @@ namespace L2CapstoneProject
             Rfsg.Initiate();
             Rfsg.CheckGenerationStatus();
 
+        }
+        private void UpdateResults()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void RetrieveResults()
+        {
+            throw new NotImplementedException();
+        }
+        private void CloseSession()
+        {
+            throw new NotImplementedException();
         }
     }
 }

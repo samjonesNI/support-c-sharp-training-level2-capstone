@@ -223,7 +223,7 @@ namespace L2CapstoneProject
         {
             //Create resource names
             string rfsgResourceName, instrResourceName;
-            double frequency, power, mLength, mOffset;
+            double frequency, power, mLength, mOffset, externalAttenuation;
            
             //Update RFSG resources
             rfsgResourceName = rfsgNameComboBox.Text;
@@ -234,6 +234,7 @@ namespace L2CapstoneProject
             instrResourceName = rfsaNameComboBox.Text;
             mLength = (double)measurementLengthNumeric.Value;
             mOffset = (double)measurementOffsetNumeric.Value;
+            externalAttenuation = 0;
 
             //Create and configure RFSG session
             rfsg = new NIRfsg(rfsgResourceName, true, false);
@@ -244,6 +245,8 @@ namespace L2CapstoneProject
             instr = new RFmxInstrMX(instrResourceName, "");
             specAn = instr.GetSpecAnSignalConfiguration();
             instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
+            specAn.ConfigureRF("", frequency, power, externalAttenuation);
+            specAn.ConfigureDigitalEdgeTrigger("", RFmxSpecAnMXConstants.PxiTriggerLine0, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising,0, true);
 
             //simulated DUT
             beamformer = new SimulatedSteppedBeamformer(rfsg);   

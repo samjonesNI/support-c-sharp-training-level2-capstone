@@ -1,24 +1,34 @@
-﻿using System;
-using System.Windows.Forms;
-using NationalInstruments.ModularInstruments.NIRfsg;
+﻿using NationalInstruments.ModularInstruments.NIRfsg;
+using NationalInstruments.ModularInstruments.SystemServices.DeviceServices;
 using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.SpecAnMX;
-using NationalInstruments.ModularInstruments.SystemServices.DeviceServices;
+using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 
 namespace L2CapstoneProject
 {
 
+    public struct MeasurementConfig
+    {
+        public double mLength, mOffset, externalAttenuation;
+    }
+    public struct InstrumentConfig
+    {
+        public string rfsgResourceName, instrResourceName;
+        public double frequency, power;
+        public List<PhaseAmplitudeOffset> PAOList;
+    }
     public partial class frmBeamformerPavtController : Form
     {
         NIRfsg rfsg;
         RFmxInstrMX instr;
-        private List<PhaseAmplitudeOffset> PAOList =  new List<PhaseAmplitudeOffset>();
+        private List<PhaseAmplitudeOffset> PAOResultList = new List<PhaseAmplitudeOffset>();
         Beamformer beamformer;
         RFmxSpecAnMX specAn;
-
-
+        MeasurementConfig pavtConfig;
+        InstrumentConfig instrConfig;
 
         public frmBeamformerPavtController()
         {
@@ -26,6 +36,9 @@ namespace L2CapstoneProject
             LoadDeviceNames();
         }
 
+        #region Type Defenitions
+       
+        #endregion
         private void LoadDeviceNames()
         {
             ModularInstrumentsSystem rfsgSystem = new ModularInstrumentsSystem("NI-Rfsg");
@@ -148,7 +161,7 @@ namespace L2CapstoneProject
 
             if (r == DialogResult.OK)
             {
-                PAOList.Add(new PhaseAmplitudeOffset(dialog.Phase, dialog.Amplitude));
+                instrConfig.PAOList.Add(new PhaseAmplitudeOffset(dialog.Phase, dialog.Amplitude));
                 UpdateListBox();
             }
         }
@@ -161,23 +174,21 @@ namespace L2CapstoneProject
 
             if (r == DialogResult.OK)
             {
-                PAOList[selected].Phase = dialog.Phase;
-                PAOList[selected].Amplitude = dialog.Amplitude;
+                instrConfig.PAOList[selected].Phase = dialog.Phase;
+                instrConfig.PAOList[selected].Amplitude = dialog.Amplitude;
                 UpdateListBox();
             }
         }
         private void UpdateListBox()
         {
             lsvOffsets.Items.Clear();
-            foreach (PhaseAmplitudeOffset currentPAO in PAOList)
+            foreach (PhaseAmplitudeOffset currentPAO in instrConfig.PAOList)
             {
                 string subitem1 = currentPAO.Phase.ToString();
                 string subitem2 = currentPAO.Amplitude.ToString();
                 ListViewItem newItem = new ListViewItem(subitem1);
                 newItem.SubItems.Add(subitem2);
                 lsvOffsets.Items.Add(newItem);
-
-                
             }
         }
 
@@ -185,7 +196,7 @@ namespace L2CapstoneProject
         private void RemoveOffset(int selected)
         {
             lsvOffsets.Items.RemoveAt(selected);
-            PAOList.RemoveAt(selected);
+            instrConfig.PAOList.RemoveAt(selected);
             UpdateListBox();
         }
         #endregion
@@ -219,38 +230,31 @@ namespace L2CapstoneProject
 
 
 
-        public void InitializeInstruments()
+
+        public void InitializeConfigurations()
         {
-            //Create resource names
-            string rfsgResourceName, instrResourceName;
-            double frequency, power, mLength, mOffset, externalAttenuation;
-           
             //Update RFSG resources
-            rfsgResourceName = rfsgNameComboBox.Text;
-            frequency = (double)frequencyNumeric.Value;
-            power = (double)powerLevelNumeric.Value;
+            instrConfig.rfsgResourceName = rfsgNameComboBox.Text;
+            instrConfig.frequency = (double)frequencyNumeric.Value;
+            instrConfig.power = (double)powerLevelNumeric.Value;
 
             //Update RFSA resources
-            instrResourceName = rfsaNameComboBox.Text;
-            mLength = (double)measurementLengthNumeric.Value;
-            mOffset = (double)measurementOffsetNumeric.Value;
-            externalAttenuation = 0;
-
-            //Create and configure RFSG session
-            rfsg = new NIRfsg(rfsgResourceName, true, false);
-            rfsg.RF.Configure(frequency, power);
-            rfsg.DriverOperation.Warning += new EventHandler<RfsgWarningEventArgs>(DriverOperation_Warning);
-
+            instrConfig.instrResourceName = rfsaNameComboBox.Text;
+            pavtConfig.mLength = (double)measurementLengthNumeric.Value;
+            pavtConfig.mOffset = (double)measurementOffsetNumeric.Value;
+            pavtConfig.externalAttenuation = 0;
+        }
+            public void InitializeInstruments()
+        {          
             //Create and configure RFSA session
-            instr = new RFmxInstrMX(instrResourceName, "");
+            instr = new RFmxInstrMX(instrConfig.instrResourceName, "");
             specAn = instr.GetSpecAnSignalConfiguration();
             instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
-            specAn.ConfigureRF("", frequency, power, externalAttenuation);
+            specAn.ConfigureRF("", instrConfig.frequency, instrConfig.power, pavtConfig.externalAttenuation);
             specAn.ConfigureDigitalEdgeTrigger("", RFmxSpecAnMXConstants.PxiTriggerLine0, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising,0, true);
 
             //simulated DUT
             beamformer = new SimulatedSteppedBeamformer(rfsg);   
-            
             
             //Any beamformer
             beamformer.ConnectDUT();
@@ -258,17 +262,12 @@ namespace L2CapstoneProject
 
         public void StartGeneration()
         {
-            
+            beamformer.Run();
             //This code only needs to exist until measurement class is created
             beamformer.StimulateDUT();
             //Replace StimulateDUT with the following code
             //measure.StimulateDUT();
-            foreach (PhaseAmplitudeOffset pao in PAOList)
-            {
-                beamformer.WriteOffset(pao, (double)powerLevelNumeric.Value);
-                //measure();
-                System.Threading.Thread.Sleep(1000);
-            }
+            
             beamformer.DisconnectDUT();
         }
 

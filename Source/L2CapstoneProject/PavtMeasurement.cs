@@ -18,7 +18,7 @@ namespace L2CapstoneProject
             Rfsg = rfsg;
             Instr = instr;
         }
-
+        RFmxSpecAnMX specAn;
         public NIRfsg Rfsg { get; set; }
         public RFmxInstrMX Instr { get; set; }
 
@@ -54,16 +54,17 @@ namespace L2CapstoneProject
        
 
 
-        private void InitializeInstr()
+        public void InitializeInstr()
         {
-           
+            throw new NotImplementedException();
         }
 
         
 
         private void ConfigureSpecAn()
         {
-            throw new NotImplementedException();
+            specAn = Instr.GetSpecAnSignalConfiguration();
+            Instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
         }
 
         public void StimulateDUT()

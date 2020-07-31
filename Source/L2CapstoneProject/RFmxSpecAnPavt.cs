@@ -1,237 +1,237 @@
-////Steps:
-////1. Open a new RFmx session.
-////2. Configure the basic instrument properties (Clock Source and Clock Frequency).
-////3. Configure Selected Ports.
-////4. Configure the basic signal properties (Center Frequency, Reference Level and External Attenuation).
-////5. Configure Trigger Type and Trigger Parameters.
-////6. Configure PAVT measurement and enable the traces.
-////7. Configure Measurement Location Type.
+//Steps:
+//1. Open a new RFmx session.
+//2. Configure the basic instrument properties (Clock Source and Clock Frequency).
+//3. Configure Selected Ports.
+//4. Configure the basic signal properties (Center Frequency, Reference Level and External Attenuation).
+//5. Configure Trigger Type and Trigger Parameters.
+//6. Configure PAVT measurement and enable the traces.
+//7. Configure Measurement Location Type.
 
-////8. Follow these steps depending upon Measurement Location Type :
-//// When Measurement Location Type is Time, configure
-////8.1. Segment Start Time by :
-////8.1.1. Configuring Number of Segments, Segment0 Start Time(s) and Segment Interval(s).
-////8.2. Segment Start Time by :
-////8.2.1. Configuring Segment Start Time(s).
-////8.2.2. Configuring Number of Segments.
-//// When Measurement Location Type is Trigger, configure
-////8.3. Number of Segments.
+//8. Follow these steps depending upon Measurement Location Type :
+// When Measurement Location Type is Time, configure
+//8.1. Segment Start Time by :
+//8.1.1. Configuring Number of Segments, Segment0 Start Time(s) and Segment Interval(s).
+//8.2. Segment Start Time by :
+//8.2.1. Configuring Segment Start Time(s).
+//8.2.2. Configuring Number of Segments.
+// When Measurement Location Type is Trigger, configure
+//8.3. Number of Segments.
 
-////9. Configure Measurement Bandwidth.
-////10. Configure Measurement Interval.
-////11. Initiate Measurement.
-////12. Fetch PAVT Traces and Measurements.
-////13. Close the RFmx Session.
+//9. Configure Measurement Bandwidth.
+//10. Configure Measurement Interval.
+//11. Initiate Measurement.
+//12. Fetch PAVT Traces and Measurements.
+//13. Close the RFmx Session.
 
-//using System;
-//using NationalInstruments.RFmx.InstrMX;
-//using NationalInstruments.RFmx.SpecAnMX;
+using System;
+using NationalInstruments.RFmx.InstrMX;
+using NationalInstruments.RFmx.SpecAnMX;
 
 
-//namespace NationalInstruments.Examples.RFmxSpecAnPavt
-//{
-//   public enum MeasurementStartTimeType
-//   {
-//      Step = 0,
-//      List = 1
-//   }
+namespace NationalInstruments.Examples.RFmxSpecAnPavt
+{
+    public enum MeasurementStartTimeType
+    {
+        Step = 0,
+        List = 1
+    }
 
-//   public class RFmxSpecAnPavt
-//   {
-//      RFmxInstrMX instrSession;
-//      RFmxSpecAnMX specAn;
+    public class RFmxSpecAnPavt
+    {
+        RFmxInstrMX instrSession;
+        RFmxSpecAnMX specAn;
 
-//      string resourceName;
-//      string selectedPorts;
-//      double centerFrequency;
-//      double referenceLevel;
-//      double externalAttenuation;
+        string resourceName;
+        string selectedPorts;
+        double centerFrequency;
+        double referenceLevel;
+        double externalAttenuation;
 
-//      string frequencyReferenceSource;
-//      double frequencyReference;
+        string frequencyReferenceSource;
+        double frequencyReference;
 
-//      bool enableTrigger;
-//      string digitalEdgeSource;
-//      RFmxSpecAnMXDigitalEdgeTriggerEdge digitalEdge;
-//      double triggerDelay;
+        bool enableTrigger;
+        string digitalEdgeSource;
+        RFmxSpecAnMXDigitalEdgeTriggerEdge digitalEdge;
+        double triggerDelay;
 
-//      RFmxSpecAnMXPavtMeasurementLocationType measurementLocationType;
-//      const int NumberOfSegments = 1;
+        RFmxSpecAnMXPavtMeasurementLocationType measurementLocationType;
+        const int NumberOfSegments = 1;
 
-//      double segment0StartTime;
-//      double segmentInterval;
+        double segment0StartTime;
+        double segmentInterval;
 
-//      const int segmentStartTimeArraySize = 1;
-//      double[] segmentStartTime = new double[segmentStartTimeArraySize];
+        const int segmentStartTimeArraySize = 1;
+        double[] segmentStartTime = new double[segmentStartTimeArraySize];
 
-//      MeasurementStartTimeType measurementStartTimeType;
+        MeasurementStartTimeType measurementStartTimeType;
 
-//      double measurementBandwidth;
+        double measurementBandwidth;
 
-//      double measurementOffset;
-//      double measurementLength;
+        double measurementOffset;
+        double measurementLength;
 
-//      double timeout;
-        
-//      double[] meanRelativePhase = new double[NumberOfSegments];                          /* (deg) */
-//      double[] meanRelativeAmplitude = new double[NumberOfSegments];                      /* (dB) */
-//      double[] meanAbsolutePhase = new double[NumberOfSegments];                          /* (deg) */
-//      double[] meanAbsoluteAmplitude = new double[NumberOfSegments];                      /* (dBm) */
+        double timeout;
 
-//      AnalogWaveform<float>[] amplitude = new AnalogWaveform<float>[NumberOfSegments];    /* (dBm) */
-//      AnalogWaveform<float>[] phase = new AnalogWaveform<float>[NumberOfSegments];        /* (deg) */
+        double[] meanRelativePhase = new double[NumberOfSegments];                          /* (deg) */
+        double[] meanRelativeAmplitude = new double[NumberOfSegments];                      /* (dB) */
+        double[] meanAbsolutePhase = new double[NumberOfSegments];                          /* (deg) */
+        double[] meanAbsoluteAmplitude = new double[NumberOfSegments];                      /* (dBm) */
 
-//      public void Run()
-//      {
-//         try
-//         {
-//            InitializeVariables();
-//            InitializeInstr();
-//            ConfigureSpecAn();
-//            RetrieveResults();
-//            PrintResults();
-//         }
-//         catch (Exception ex)
-//         {
-//            DisplayError(ex);
-//         }
-//         finally
-//         {
-//            /* Close session */
-//            CloseSession();
-//            Console.WriteLine("Press any key to exit");
-//            Console.ReadKey();
-//         }
-//      }
+        AnalogWaveform<float>[] amplitude = new AnalogWaveform<float>[NumberOfSegments];    /* (dBm) */
+        AnalogWaveform<float>[] phase = new AnalogWaveform<float>[NumberOfSegments];        /* (deg) */
 
-//      private void InitializeVariables()
-//      {
-//         resourceName = "RFSA";
+        public void Run()
+        {
+            try
+            {
+                InitializeVariables();
+                InitializeInstr();
+                ConfigureSpecAn();
+                RetrieveResults();
+                PrintResults();
+            }
+            catch (Exception ex)
+            {
+                DisplayError(ex);
+            }
+            finally
+            {
+                /* Close session */
+                CloseSession();
+                Console.WriteLine("Press any key to exit");
+                Console.ReadKey();
+            }
+        }
 
-//         selectedPorts = "";
-//         centerFrequency = 1.0e+9;                                         /* (Hz) */
-//         referenceLevel = 0.0;                                             /* (dBm) */
-//         externalAttenuation = 0.0;                                        /* (dB) */
+        private void InitializeVariables()
+        {
+            resourceName = "RFSA";
 
-//         frequencyReferenceSource = RFmxInstrMXConstants.OnboardClock;
-//         frequencyReference = 10.0e6;                                      /* (Hz) */
+            selectedPorts = "";
+            centerFrequency = 1.0e+9;                                         /* (Hz) */
+            referenceLevel = 0.0;                                             /* (dBm) */
+            externalAttenuation = 0.0;                                        /* (dB) */
 
-//         enableTrigger = true;
-//         digitalEdgeSource = RFmxSpecAnMXConstants.PxiTriggerLine0;
-//         digitalEdge = RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising;
-//         triggerDelay = 0.0;                                               /* (s) */
+            frequencyReferenceSource = RFmxInstrMXConstants.OnboardClock;
+            frequencyReference = 10.0e6;                                      /* (Hz) */
 
-//         measurementLocationType = RFmxSpecAnMXPavtMeasurementLocationType.Time;
+            enableTrigger = true;
+            digitalEdgeSource = RFmxSpecAnMXConstants.PxiTriggerLine0;
+            digitalEdge = RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising;
+            triggerDelay = 0.0;                                               /* (s) */
 
-//         /* Segment Step */
-//         segment0StartTime = 0.0;                                          /* (s) */
-//         segmentInterval = 1.0e-3;                                         /* (s) */
+            measurementLocationType = RFmxSpecAnMXPavtMeasurementLocationType.Trigger;
 
-//         /* Segment List */
-//         segmentStartTime[0] = 0.0;                                        /* (s) */
+            /* Segment Step */
+            segment0StartTime = 0.0;                                          /* (s) */
+            segmentInterval = 1.0e-3;                                         /* (s) */
 
-//         measurementStartTimeType = MeasurementStartTimeType.Step;
+            /* Segment List */
+            segmentStartTime[0] = 0.0;                                        /* (s) */
 
-//         measurementBandwidth = 10.0e6;                                    /* (Hz) */
+            measurementStartTimeType = MeasurementStartTimeType.Step;
 
-//         measurementOffset = 0.0;                                          /* (s) */
-//         measurementLength = 1.0e-3;                                       /* (s) */
+            measurementBandwidth = 10.0e6;                                    /* (Hz) */
 
-//         timeout = 10.0;                                                   /* (s) */
-//      }
+            measurementOffset = 0.0;                                          /* (s) */
+            measurementLength = 1.0e-3;                                       /* (s) */
 
-//      private void InitializeInstr()
-//      {
-//         /* Create a new RFmx Session */
-//         instrSession = new RFmxInstrMX(resourceName, "");
-//      }
+            timeout = 10.0;                                                   /* (s) */
+        }
 
-//      private void ConfigureSpecAn()
-//      {
-//         /* Get SpecAn signal */
-//         specAn = instrSession.GetSpecAnSignalConfiguration();
+        private void InitializeInstr()
+        {
+            /* Create a new RFmx Session */
+            instrSession = new RFmxInstrMX(resourceName, "");
+        }
 
-//         /* Configure measurement */
-//         instrSession.ConfigureFrequencyReference("", frequencyReferenceSource, frequencyReference);
-//         specAn.SetSelectedPorts("", selectedPorts);
-//         specAn.ConfigureRF("", centerFrequency, referenceLevel, externalAttenuation);
-//         specAn.ConfigureDigitalEdgeTrigger("", digitalEdgeSource, digitalEdge, triggerDelay, enableTrigger);
-//         specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Pavt, true);
-//         specAn.Pavt.Configuration.ConfigureMeasurementLocationType("", measurementLocationType);
-//         if (measurementLocationType == RFmxSpecAnMXPavtMeasurementLocationType.Time)
-//         {
-//            if (measurementStartTimeType == MeasurementStartTimeType.Step)
-//            {
-//               specAn.Pavt.Configuration.ConfigureSegmentStartTimeStep("", NumberOfSegments,
-//                  segment0StartTime, segmentInterval);
-//            }
-//            else
-//            {
-//               specAn.Pavt.Configuration.ConfigureNumberOfSegments("", segmentStartTimeArraySize);
-//               specAn.Pavt.Configuration.ConfigureSegmentStartTimeList("", segmentStartTime);
-//            }
-//         }
-//         else
-//         {
-//            specAn.Pavt.Configuration.ConfigureNumberOfSegments("", NumberOfSegments);
-//         }
-//         specAn.Pavt.Configuration.ConfigureMeasurementBandwidth("", measurementBandwidth);
-//         specAn.Pavt.Configuration.ConfigureMeasurementInterval("", measurementOffset, measurementLength);
-//         specAn.Initiate("", "");
-//      }
+        private void ConfigureSpecAn()
+        {
+            /* Get SpecAn signal */
+            specAn = instrSession.GetSpecAnSignalConfiguration();
 
-//      private void RetrieveResults()
-//      {
-//         specAn.Pavt.Results.FetchPhaseAndAmplitudeArray("", timeout, ref meanRelativePhase,
-//            ref meanRelativeAmplitude, ref meanAbsolutePhase, ref meanAbsoluteAmplitude);
+            /* Configure measurement */
+            instrSession.ConfigureFrequencyReference("", frequencyReferenceSource, frequencyReference);
+            specAn.SetSelectedPorts("", selectedPorts);
+            specAn.ConfigureRF("", centerFrequency, referenceLevel, externalAttenuation);
+            specAn.ConfigureDigitalEdgeTrigger("", digitalEdgeSource, digitalEdge, triggerDelay, enableTrigger);
+            specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Pavt, true);
+            specAn.Pavt.Configuration.ConfigureMeasurementLocationType("", measurementLocationType);
+            if (measurementLocationType == RFmxSpecAnMXPavtMeasurementLocationType.Time)
+            {
+                if (measurementStartTimeType == MeasurementStartTimeType.Step)
+                {
+                    specAn.Pavt.Configuration.ConfigureMeasurementStartTimeStep("", NumberOfSegments,
+                       segment0StartTime, segmentInterval);
+                }
+                else
+                {
+                    specAn.Pavt.Configuration.ConfigureNumberOfSegments("", segmentStartTimeArraySize);
+                    specAn.Pavt.Configuration.ConfigureMeasurementStartTimeList("", segmentStartTime);
+                }
+            }
+            else
+            {
+                specAn.Pavt.Configuration.ConfigureNumberOfSegments("", NumberOfSegments);
+            }
+            specAn.Pavt.Configuration.ConfigureMeasurementBandwidth("", measurementBandwidth);
+            specAn.Pavt.Configuration.ConfigureMeasurementInterval("", measurementOffset, measurementLength);
+            specAn.Initiate("", "");
+        }
 
-//         for (int i = 0; i < NumberOfSegments; i++)
-//         {
-//            specAn.Pavt.Results.FetchPhaseTrace("", timeout, i, ref phase[i]);
-//            specAn.Pavt.Results.FetchAmplitudeTrace("", timeout, i, ref amplitude[i]);
-//         }
-//      }
+        private void RetrieveResults()
+        {
+            specAn.Pavt.Results.FetchPhaseAndAmplitudeArray("", timeout, ref meanRelativePhase,
+               ref meanRelativeAmplitude, ref meanAbsolutePhase, ref meanAbsoluteAmplitude);
 
-//      private void PrintResults()
-//      {
-//         Console.WriteLine("Segment0 Mean Absolute Phase (deg)       : {0}", meanAbsolutePhase[0]);
-//         Console.WriteLine("Segment0 Mean Absolute Amplitude (dBm)   : {0}\n", meanAbsoluteAmplitude[0]);
-//         Console.WriteLine("Segment Measurements");
-//         for (int i = 0; i < NumberOfSegments; i++)
-//         {
-//            Console.WriteLine("Segment  :  {0}", i);
-//            Console.WriteLine("Mean Relative Phase (deg)                : {0}", meanRelativePhase[i]);
-//            Console.WriteLine("Mean Relative Amplitude (dB)             : {0}", meanRelativeAmplitude[i]);
-//            Console.WriteLine("-------------------------------------------------\n");
-//         }
-//      }
+            for (int i = 0; i < NumberOfSegments; i++)
+            {
+                specAn.Pavt.Results.FetchPhaseTrace("", timeout, i, ref phase[i]);
+                specAn.Pavt.Results.FetchAmplitudeTrace("", timeout, i, ref amplitude[i]);
+            }
+        }
 
-//      private void CloseSession()
-//      {
-//         try
-//         {
-//            if (specAn != null)
-//            {
-//               specAn.Dispose();
-//               specAn = null;
-//            }
+        private void PrintResults()
+        {
+            Console.WriteLine("Segment0 Mean Absolute Phase (deg)       : {0}", meanAbsolutePhase[0]);
+            Console.WriteLine("Segment0 Mean Absolute Amplitude (dBm)   : {0}\n", meanAbsoluteAmplitude[0]);
+            Console.WriteLine("Segment Measurements");
+            for (int i = 0; i < NumberOfSegments; i++)
+            {
+                Console.WriteLine("Segment  :  {0}", i);
+                Console.WriteLine("Mean Relative Phase (deg)                : {0}", meanRelativePhase[i]);
+                Console.WriteLine("Mean Relative Amplitude (dB)             : {0}", meanRelativeAmplitude[i]);
+                Console.WriteLine("-------------------------------------------------\n");
+            }
+        }
 
-//            if (instrSession != null)
-//            {
-//               instrSession.Close();
-//               instrSession = null;
-//            }
-//         }
-//         catch (Exception ex)
-//         {
-//            DisplayError(ex);
-//         }
-//      }
+        private void CloseSession()
+        {
+            try
+            {
+                if (specAn != null)
+                {
+                    specAn.Dispose();
+                    specAn = null;
+                }
 
-//      private void DisplayError(Exception ex)
-//      {
-//         Console.WriteLine("ERROR:\n" + ex.GetType() + ": " + ex.Message);
-//      }
+                if (instrSession != null)
+                {
+                    instrSession.Close();
+                    instrSession = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                DisplayError(ex);
+            }
+        }
 
-//   }
-//}
+        private void DisplayError(Exception ex)
+        {
+            Console.WriteLine("ERROR:\n" + ex.GetType() + ": " + ex.Message);
+        }
+
+    }
+}

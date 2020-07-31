@@ -81,8 +81,7 @@
             this.lsvOffsets.Size = new System.Drawing.Size(237, 162);
             this.lsvOffsets.TabIndex = 1;
             this.lsvOffsets.UseCompatibleStateImageBehavior = false;
-            this.lsvOffsets.View = System.Windows.Forms.View.Details;
-            this.lsvOffsets.SelectedIndexChanged += new System.EventHandler(this.lsvOffsets_SelectedIndexChanged);
+            this.lsvOffsets.View = System.Windows.Forms.View.Details;            
             this.lsvOffsets.DoubleClick += new System.EventHandler(this.EditListViewItem);
             this.lsvOffsets.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lsvOffsets_KeyDown);
             // 

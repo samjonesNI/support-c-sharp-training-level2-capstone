@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments;
-
-
+using System.Windows.Forms;
 
 namespace L2CapstoneProject
 {
@@ -20,7 +19,7 @@ namespace L2CapstoneProject
         public abstract void DisconnectDUT();
 
         //Used to change current pao for stepped beamformer
-        public virtual void WriteOffset(PhaseAmplitudeOffset pao, double power) { }
+        public virtual void WriteOffset(PhaseAmplitudeOffset pao) { }
         //Loads a list of pao's into memory for the sequenced beamformer
         public virtual void WriteSequence(List<PhaseAmplitudeOffset> paoList){ }
         public virtual void InitiateSequence() { }
@@ -29,12 +28,13 @@ namespace L2CapstoneProject
         //Changes the duration of each subsequence when using sequenced beamformer
         public decimal SubsequenceLength { get; set; }
     }
+
     public class SimulatedSteppedBeamformer : Beamformer
     {
         public SimulatedSteppedBeamformer(InstrumentConfig instrConfig)
         {
             InstrConfig = instrConfig;
-            Rfsg.Triggers.StartTrigger.ExportedOutputTerminal = RfsgStartTriggerExportedOutputTerminal.PxiTriggerLine0;
+            
         }
 
         public NIRfsg Rfsg { get; set; }
@@ -42,21 +42,31 @@ namespace L2CapstoneProject
 
         public override void Run()
         {
-            ConnectDUT();
-            Rfsg?.Initiate();
-            Rfsg.CheckGenerationStatus();
-            GenerateOffsets();
-            DisconnectDUT();
+            try
+            {
+                ConnectDUT();
+                Rfsg?.Initiate();
+                Rfsg.CheckGenerationStatus();
+                GenerateOffsets();
+            }
 
-
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\n\n" + ex.GetType().ToString() + "\n" + ex.StackTrace, "Exception");
+            }
+            finally
+            {
+                /* Close session */
+                DisconnectDUT();
+            }
         }
-
-        
 
         public override bool ConnectDUT()
         {
-            Rfsg = new NIRfsg(InstrConfig.rfsgResourceName, true, false);
+            //InstrConfig.rfsgSession = new NIRfsg(InstrConfig.rfsgResourceName, true, false);
+            Rfsg = InstrConfig.rfsgSession;
             Rfsg.RF.Configure(InstrConfig.frequency, InstrConfig.power);
+            Rfsg.Triggers.StartTrigger.ExportedOutputTerminal = RfsgStartTriggerExportedOutputTerminal.PxiTriggerLine0;
             // TODO: Add this code back to the main form so that warnings are properly wired through
             //Rfsg.DriverOperation.Warning += new EventHandler<RfsgWarningEventArgs>(DriverOperation_Warning);
             return true;
@@ -71,12 +81,12 @@ namespace L2CapstoneProject
             //Close session
         }
 
-        public void WriteOffset(PhaseAmplitudeOffset pao)
+        public override void WriteOffset(PhaseAmplitudeOffset pao)
         {
             Rfsg.Abort();
-            Rfsg.Initiate();
             Rfsg.RF.PowerLevel = InstrConfig.power + pao.Amplitude;
             Rfsg.RF.PhaseOffset = pao.Phase;
+            Rfsg.Initiate();
         }
         
         public void GenerateOffsets()
@@ -84,10 +94,8 @@ namespace L2CapstoneProject
             foreach (PhaseAmplitudeOffset pao in InstrConfig.PAOList)
             {
                 WriteOffset(pao);
-                //measure();
                 System.Threading.Thread.Sleep(1000);
             }
         }
-        
     }
 }

@@ -16,29 +16,49 @@ namespace L2CapstoneProject
     }
     public struct InstrumentConfig
     {
+        public NIRfsg rfsgSession;
+        public RFmxInstrMX rfmxSession;
         public string rfsgResourceName, instrResourceName;
         public double frequency, power;
         public List<PhaseAmplitudeOffset> PAOList;
     }
+
+    public struct ResultsLists
+    {
+        public List<PhaseAmplitudeOffset> PAOResultList;
+    }
+
     public partial class frmBeamformerPavtController : Form
     {
         NIRfsg rfsg;
         RFmxInstrMX instr;
-        private List<PhaseAmplitudeOffset> PAOResultList = new List<PhaseAmplitudeOffset>();
         Beamformer beamformer;
-        RFmxSpecAnMX specAn;
+        PavtMeasurement rfmxMeasure;
         MeasurementConfig pavtConfig;
         InstrumentConfig instrConfig;
+        ResultsLists beamformerResults;
 
         public frmBeamformerPavtController()
         {
             InitializeComponent();
             LoadDeviceNames();
+            pavtConfig = new MeasurementConfig();
+            instrConfig = new InstrumentConfig();
+            beamformerResults = new ResultsLists();
+
+            beamformerResults.PAOResultList = new List<PhaseAmplitudeOffset>();
+           
+            instrConfig.PAOList = new List<PhaseAmplitudeOffset>();
+
+            //initiate defaults
+            instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, 0));
+            instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -5));
+            instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -10));
+            UpdateListBox();
+
         }
 
-        #region Type Defenitions
-       
-        #endregion
+
         private void LoadDeviceNames()
         {
             ModularInstrumentsSystem rfsgSystem = new ModularInstrumentsSystem("NI-Rfsg");
@@ -60,8 +80,6 @@ namespace L2CapstoneProject
             
         }
 
-        
-
         private void EditListViewItem(object sender, EventArgs e)
         {
             if (CheckSelection(out int selected))
@@ -70,6 +88,7 @@ namespace L2CapstoneProject
                 
             }
         }
+
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (CheckSelection(out int selected))
@@ -77,17 +96,9 @@ namespace L2CapstoneProject
                 RemoveOffset(selected);
             }
         }
-        private void lsvOffsets_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (CheckSelection(out int _))
-            {
-                btnDeleteOffset.Enabled = btnEditOffset.Enabled = true;
-            }
-            else
-            {
-                btnDeleteOffset.Enabled = btnEditOffset.Enabled = false;
-            }
-        }
+
+        
+        
         private void lsvOffsets_KeyDown(object sender, KeyEventArgs e)
         {
             if (CheckSelection(out int selected))
@@ -106,9 +117,15 @@ namespace L2CapstoneProject
         private void btnStart_Click(object sender, EventArgs e)
         {
             SetButtonState(true);
-            InitializeInstruments();
+            InitializeConfigurations();
+           
+            StartMeasurement();
             StartGeneration();
+
+            UpdateResults();
+
         }
+
         private void btnStop_Click(object sender, EventArgs e)
         {
             AbortGeneration();
@@ -154,6 +171,7 @@ namespace L2CapstoneProject
         }
         #endregion
         #region Offset Functions
+
         private void AddOffset()
         {
             frmOffset dialog = new frmOffset(frmOffset.Mode.Add);
@@ -165,6 +183,7 @@ namespace L2CapstoneProject
                 UpdateListBox();
             }
         }
+
         private void EditOffset(int selected)
         {
             // Will need to pass in the currently selected item
@@ -179,6 +198,7 @@ namespace L2CapstoneProject
                 UpdateListBox();
             }
         }
+
         private void UpdateListBox()
         {
             lsvOffsets.Items.Clear();
@@ -190,6 +210,24 @@ namespace L2CapstoneProject
                 newItem.SubItems.Add(subitem2);
                 lsvOffsets.Items.Add(newItem);
             }
+        }
+
+        private void UpdateResults()
+        {
+            beamformerResults.PAOResultList = rfmxMeasure.RetrieveResults();
+            lsvResults.Items.Clear();
+            for (int i = 0; i < beamformerResults.PAOResultList.Count; i++)
+            {
+                string subitem1 = i.ToString();
+                string subitem2 = beamformerResults.PAOResultList[i].Phase.ToString();
+                string subitem3 = beamformerResults.PAOResultList[i].Amplitude.ToString();
+                ListViewItem newItem = new ListViewItem(subitem1);
+                newItem.SubItems.Add(subitem2);
+                newItem.SubItems.Add(subitem3);
+                lsvResults.Items.Add(newItem);
+            }
+            
+            
         }
 
         ///
@@ -228,49 +266,33 @@ namespace L2CapstoneProject
 
         #endregion
 
-
-
-
         public void InitializeConfigurations()
-        {
+        {            
             //Update RFSG resources
             instrConfig.rfsgResourceName = rfsgNameComboBox.Text;
             instrConfig.frequency = (double)frequencyNumeric.Value;
             instrConfig.power = (double)powerLevelNumeric.Value;
+            instrConfig.rfsgSession = new NIRfsg(instrConfig.rfsgResourceName, true, false);
 
-            //Update RFSA resources
+            //Update RFmx resources
             instrConfig.instrResourceName = rfsaNameComboBox.Text;
             pavtConfig.mLength = (double)measurementLengthNumeric.Value;
             pavtConfig.mOffset = (double)measurementOffsetNumeric.Value;
             pavtConfig.externalAttenuation = 0;
-        }
-            public void InitializeInstruments()
-        {          
-            //Create and configure RFSA session
-            instr = new RFmxInstrMX(instrConfig.instrResourceName, "");
-            specAn = instr.GetSpecAnSignalConfiguration();
-            instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
-            specAn.ConfigureRF("", instrConfig.frequency, instrConfig.power, pavtConfig.externalAttenuation);
-            specAn.ConfigureDigitalEdgeTrigger("", RFmxSpecAnMXConstants.PxiTriggerLine0, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising,0, true);
+            instrConfig.rfmxSession = new RFmxInstrMX(instrConfig.instrResourceName, "");
 
-            //simulated DUT
-            beamformer = new SimulatedSteppedBeamformer(rfsg);   
-            
-            //Any beamformer
-            beamformer.ConnectDUT();
         }
 
         public void StartGeneration()
         {
+            beamformer = new SimulatedSteppedBeamformer(instrConfig);
             beamformer.Run();
-            //This code only needs to exist until measurement class is created
-            beamformer.StimulateDUT();
-            //Replace StimulateDUT with the following code
-            //measure.StimulateDUT();
-            
             beamformer.DisconnectDUT();
         }
-
-        
+        private void StartMeasurement()
+        {
+            rfmxMeasure = new PavtMeasurement(instrConfig, pavtConfig);
+            rfmxMeasure.Run();
+        }
     }
 }

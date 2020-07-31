@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using NationalInstruments;
 using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.RFmx.InstrMX;
@@ -13,58 +14,65 @@ namespace L2CapstoneProject
 {
     class PavtMeasurement
     {
-        public PavtMeasurement(NIRfsg rfsg, RFmxInstrMX instr)
+        public PavtMeasurement(InstrumentConfig instrConfig, MeasurementConfig pavtConfig)
         {
-            Rfsg = rfsg;
-            Instr = instr;
+            PavtConfig = pavtConfig;
+            InstrConfig = instrConfig;
         }
         RFmxSpecAnMX specAn;
         public NIRfsg Rfsg { get; set; }
         public RFmxInstrMX Instr { get; set; }
+        public InstrumentConfig InstrConfig { get; set; }
+        public MeasurementConfig PavtConfig { get; set; }
+        
+        private List<PhaseAmplitudeOffset> PAOResultList;
+        
 
         public void Run()
         {
             try
             {
-                
                 InitializeInstr();
                 ConfigureSpecAn();
-                RetrieveResults();
-                UpdateResults();
+                
+
             }
             catch (Exception ex)
             {
                 DisplayError(ex);
+                MessageBox.Show(ex.Message + "\n\n" + ex.GetType().ToString() + "\n" + ex.StackTrace, "Exception");
+                
             }
             finally
             {
                 /* Close session */
                 CloseSession();
-                
             }
         }
-
-        
 
         private void DisplayError(Exception ex)
         {
             Console.WriteLine("ERROR:\n" + ex.GetType() + ": " + ex.Message);
         }
 
-       
-
-
         public void InitializeInstr()
         {
-            throw new NotImplementedException();
+            Instr = InstrConfig.rfmxSession;
+            //Instr = new RFmxInstrMX(InstrConfig.instrResourceName, "");
+            Instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
         }
-
-        
 
         private void ConfigureSpecAn()
         {
             specAn = Instr.GetSpecAnSignalConfiguration();
-            Instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
+            specAn.ConfigureRF("", InstrConfig.frequency, InstrConfig.power, PavtConfig.externalAttenuation);
+            specAn.ConfigureDigitalEdgeTrigger("", RFmxSpecAnMXConstants.PxiTriggerLine0, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising, 0, true);
+            specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Pavt, true);
+            specAn.Pavt.Configuration.ConfigureMeasurementLocationType("", RFmxSpecAnMXPavtMeasurementLocationType.Trigger);
+            specAn.Pavt.Configuration.ConfigureNumberOfSegments("", InstrConfig.PAOList.Count);
+            specAn.Pavt.Configuration.ConfigureMeasurementBandwidth("", 10.0e6);
+            specAn.Pavt.Configuration.ConfigureMeasurementInterval("", PavtConfig.mOffset/10e6, PavtConfig.mLength/10e6);
+            specAn.Initiate("", "");
         }
 
         public void StimulateDUT()
@@ -73,20 +81,31 @@ namespace L2CapstoneProject
 
             Rfsg.Initiate();
             Rfsg.CheckGenerationStatus();
-
-        }
-        private void UpdateResults()
-        {
-            throw new NotImplementedException();
         }
 
-        private void RetrieveResults()
+        public List<PhaseAmplitudeOffset> RetrieveResults()
         {
-            throw new NotImplementedException();
+            int NumberOfSegments = InstrConfig.PAOList.Count;
+            double[] meanRelativePhase = new double[NumberOfSegments];                          /* (deg) */
+            double[] meanRelativeAmplitude = new double[NumberOfSegments];                      /* (dB) */
+            double[] meanAbsolutePhase = new double[NumberOfSegments];                          /* (deg) */
+            double[] meanAbsoluteAmplitude = new double[NumberOfSegments];                      /* (dBm) */
+           
+            
+            specAn.Pavt.Results.FetchPhaseAndAmplitudeArray("", 10, ref meanRelativePhase,
+               ref meanRelativeAmplitude, ref meanAbsolutePhase, ref meanAbsoluteAmplitude);
+
+            PAOResultList = new List<PhaseAmplitudeOffset>();
+            for (int i = 0; i < NumberOfSegments; i++)
+            {
+                PAOResultList.Add(new PhaseAmplitudeOffset(meanRelativePhase[i],  meanRelativeAmplitude[i]));
+            }
+            return PAOResultList;
         }
+
         private void CloseSession()
         {
-            throw new NotImplementedException();
+            //unused
         }
     }
 }

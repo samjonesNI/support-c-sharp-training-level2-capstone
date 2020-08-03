@@ -64,7 +64,7 @@ namespace L2CapstoneProject
 
         private void ConfigureSpecAn()
         {
-            specAn = Instr.GetSpecAnSignalConfiguration();
+            specAn = Instr.GetSpecAnSignalConfiguration("Stepped");
             specAn.ConfigureRF("", InstrConfig.frequency, InstrConfig.power, PavtConfig.externalAttenuation);
             specAn.ConfigureDigitalEdgeTrigger("", RFmxSpecAnMXConstants.PxiTriggerLine0, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising, 0, true);
             specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Pavt, true);
@@ -73,6 +73,7 @@ namespace L2CapstoneProject
             specAn.Pavt.Configuration.ConfigureMeasurementBandwidth("", 10.0e6);
             specAn.Pavt.Configuration.ConfigureMeasurementInterval("", PavtConfig.mOffset/10e6, PavtConfig.mLength/10e6);
             specAn.Initiate("", "");
+            
         }
 
         public void StimulateDUT()

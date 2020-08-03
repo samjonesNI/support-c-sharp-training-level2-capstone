@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments;
 using System.Windows.Forms;
+using NationalInstruments.RFmx.SpecAnMX;
+using NationalInstruments.RFmx.InstrMX;
 
 namespace L2CapstoneProject
 {
@@ -34,10 +36,11 @@ namespace L2CapstoneProject
         public SimulatedSteppedBeamformer(InstrumentConfig instrConfig)
         {
             InstrConfig = instrConfig;
-            
+
         }
 
         public NIRfsg Rfsg { get; set; }
+        public RFmxSpecAnMX SpecAn {get; set;}
         public InstrumentConfig InstrConfig { get; set; }
 
         public override void Run()
@@ -45,7 +48,7 @@ namespace L2CapstoneProject
             try
             {
                 ConnectDUT();
-                Rfsg?.Initiate();
+                //Rfsg?.Initiate();
                 Rfsg.CheckGenerationStatus();
                 GenerateOffsets();
             }
@@ -69,6 +72,7 @@ namespace L2CapstoneProject
             Rfsg.Triggers.StartTrigger.ExportedOutputTerminal = RfsgStartTriggerExportedOutputTerminal.PxiTriggerLine0;
             // TODO: Add this code back to the main form so that warnings are properly wired through
             //Rfsg.DriverOperation.Warning += new EventHandler<RfsgWarningEventArgs>(DriverOperation_Warning);
+            //SpecAn = InstrConfig.rfmxSession.GetSpecAnSignalConfiguration("Stepped");
             return true;
         }
 
@@ -82,11 +86,14 @@ namespace L2CapstoneProject
         }
 
         public override void WriteOffset(PhaseAmplitudeOffset pao)
-        {          
+        {
+            Rfsg.Abort();
             Rfsg.RF.PowerLevel = InstrConfig.power + pao.Amplitude;
             Rfsg.RF.PhaseOffset = pao.Phase;
             Rfsg.Utility.WaitUntilSettled(5);
-            Rfsg.Triggers.StartTrigger.SendSoftwareEdgeTrigger();
+            
+            //SpecAn.SendSoftwareEdgeTrigger();
+            Rfsg.Initiate();
         }
         
         public void GenerateOffsets()

@@ -116,8 +116,8 @@ namespace L2CapstoneProject
         private void btnStart_Click(object sender, EventArgs e)
         {
             SetButtonState(true);
-            InitializeConfigurations();
-           
+            
+            InitializeConfigurations();           
             StartMeasurement();
             StartGeneration();
 

@@ -43,6 +43,8 @@ namespace L2CapstoneProject
         public RFmxSpecAnMX SpecAn {get; set;}
         public InstrumentConfig InstrConfig { get; set; }
 
+        public ComplexWaveform<ComplexDouble> complexWaveform { get; set; }
+
         public override void Run()
         {
             try
@@ -72,8 +74,10 @@ namespace L2CapstoneProject
             Rfsg.Triggers.StartTrigger.ExportedOutputTerminal = RfsgStartTriggerExportedOutputTerminal.PxiTriggerLine0;
             // TODO: Add this code back to the main form so that warnings are properly wired through
             //Rfsg.DriverOperation.Warning += new EventHandler<RfsgWarningEventArgs>(DriverOperation_Warning);
-            //SpecAn = InstrConfig.rfmxSession.GetSpecAnSignalConfiguration("Stepped");
+            SpecAn = InstrConfig.rfmxSession.GetSpecAnSignalConfiguration("Stepped");
+
             return true;
+            
         }
 
         public override void DisconnectDUT()

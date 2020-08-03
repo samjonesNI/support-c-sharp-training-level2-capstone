@@ -42,12 +42,11 @@ namespace L2CapstoneProject
         {
             InitializeComponent();
             LoadDeviceNames();
+           //Initialize config objects
             pavtConfig = new MeasurementConfig();
             instrConfig = new InstrumentConfig();
             beamformerResults = new ResultsLists();
-
             beamformerResults.PAOResultList = new List<PhaseAmplitudeOffset>();
-           
             instrConfig.PAOList = new List<PhaseAmplitudeOffset>();
 
             //initiate defaults
@@ -55,7 +54,7 @@ namespace L2CapstoneProject
             instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -5));
             instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -10));
             UpdateListBox();
-
+            
         }
 
 

@@ -82,11 +82,11 @@ namespace L2CapstoneProject
         }
 
         public override void WriteOffset(PhaseAmplitudeOffset pao)
-        {
-            Rfsg.Abort();
+        {          
             Rfsg.RF.PowerLevel = InstrConfig.power + pao.Amplitude;
             Rfsg.RF.PhaseOffset = pao.Phase;
-            Rfsg.Initiate();
+            Rfsg.Utility.WaitUntilSettled(5);
+            Rfsg.Triggers.StartTrigger.SendSoftwareEdgeTrigger();
         }
         
         public void GenerateOffsets()

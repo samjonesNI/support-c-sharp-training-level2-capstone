@@ -81,7 +81,7 @@
             this.lsvOffsets.Size = new System.Drawing.Size(237, 162);
             this.lsvOffsets.TabIndex = 1;
             this.lsvOffsets.UseCompatibleStateImageBehavior = false;
-            this.lsvOffsets.View = System.Windows.Forms.View.Details;            
+            this.lsvOffsets.View = System.Windows.Forms.View.Details;
             this.lsvOffsets.DoubleClick += new System.EventHandler(this.EditListViewItem);
             this.lsvOffsets.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lsvOffsets_KeyDown);
             // 
@@ -107,7 +107,6 @@
             // 
             // btnEditOffset
             // 
-            this.btnEditOffset.Enabled = false;
             this.btnEditOffset.Location = new System.Drawing.Point(94, 195);
             this.btnEditOffset.Name = "btnEditOffset";
             this.btnEditOffset.Size = new System.Drawing.Size(75, 23);
@@ -271,7 +270,6 @@
             // 
             // btnDeleteOffset
             // 
-            this.btnDeleteOffset.Enabled = false;
             this.btnDeleteOffset.Location = new System.Drawing.Point(175, 195);
             this.btnDeleteOffset.Name = "btnDeleteOffset";
             this.btnDeleteOffset.Size = new System.Drawing.Size(75, 23);

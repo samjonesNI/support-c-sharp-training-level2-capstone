@@ -50,7 +50,7 @@ namespace L2CapstoneProject
             try
             {
                 ConnectDUT();
-                //Rfsg?.Initiate();
+                Rfsg?.Initiate();
                 Rfsg.CheckGenerationStatus();
                 GenerateOffsets();
             }
@@ -71,7 +71,7 @@ namespace L2CapstoneProject
             //InstrConfig.rfsgSession = new NIRfsg(InstrConfig.rfsgResourceName, true, false);
             Rfsg = InstrConfig.rfsgSession;
             Rfsg.RF.Configure(InstrConfig.frequency, InstrConfig.power);
-            Rfsg.Triggers.StartTrigger.ExportedOutputTerminal = RfsgStartTriggerExportedOutputTerminal.PxiTriggerLine0;
+            //Rfsg.Triggers.StartTrigger.ExportedOutputTerminal = RfsgStartTriggerExportedOutputTerminal.PxiTriggerLine0;
             // TODO: Add this code back to the main form so that warnings are properly wired through
             //Rfsg.DriverOperation.Warning += new EventHandler<RfsgWarningEventArgs>(DriverOperation_Warning);
             SpecAn = InstrConfig.rfmxSession.GetSpecAnSignalConfiguration("Stepped");
@@ -91,13 +91,13 @@ namespace L2CapstoneProject
 
         public override void WriteOffset(PhaseAmplitudeOffset pao)
         {
-            Rfsg.Abort();
+            //Rfsg.Abort();
             Rfsg.RF.PowerLevel = InstrConfig.power + pao.Amplitude;
             Rfsg.RF.PhaseOffset = pao.Phase;
             Rfsg.Utility.WaitUntilSettled(5);
             
-            //SpecAn.SendSoftwareEdgeTrigger();
-            Rfsg.Initiate();
+            SpecAn.SendSoftwareEdgeTrigger();
+           //Rfsg.Initiate();
         }
         
         public void GenerateOffsets()

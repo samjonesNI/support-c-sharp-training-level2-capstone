@@ -49,12 +49,12 @@ namespace L2CapstoneProject
             beamformerResults.PAOResultList = new List<PhaseAmplitudeOffset>();
             instrConfig.PAOList = new List<PhaseAmplitudeOffset>();
 
-            //initiate defaults
+            //initiate defaults for debugging
             instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, 0));
-            instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -5));
-            instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -10));
+            instrConfig.PAOList.Add(new PhaseAmplitudeOffset(10, -5));
+            //instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -10));
             UpdateListBox();
-            
+
         }
 
 
@@ -158,6 +158,9 @@ namespace L2CapstoneProject
         {
             btnStart.Enabled = !started;
             btnStop.Enabled = started;
+            btnEditOffset.Enabled = !started;
+            btnDeleteOffset.Enabled = !started;
+            btnAddOffset.Enabled = !started;
         }
         void ShowError(string functionName, Exception exception)
         {
@@ -186,8 +189,10 @@ namespace L2CapstoneProject
         private void EditOffset(int selected)
         {
             // Will need to pass in the currently selected item
-            frmOffset dialog = new frmOffset(frmOffset.Mode.Edit);
-
+            frmOffset dialog = new frmOffset(frmOffset.Mode.Edit, instrConfig.PAOList[selected].Phase, instrConfig.PAOList[selected].Amplitude);
+            //dialog.Phase = instrConfig.PAOList[selected].Phase;
+            //dialog.Amplitude = instrConfig.PAOList[selected].Amplitude;
+            
             DialogResult r = dialog.ShowDialog();
 
             if (r == DialogResult.OK)
@@ -278,7 +283,12 @@ namespace L2CapstoneProject
             pavtConfig.mLength = (double)measurementLengthNumeric.Value;
             pavtConfig.mOffset = (double)measurementOffsetNumeric.Value;
             pavtConfig.externalAttenuation = 0;
-            instrConfig.rfmxSession = new RFmxInstrMX(instrConfig.instrResourceName, "");
+
+            if (instrConfig.rfmxSession == null)
+            {
+                instrConfig.rfmxSession = new RFmxInstrMX(instrConfig.instrResourceName, "");
+            }
+           
 
         }
 

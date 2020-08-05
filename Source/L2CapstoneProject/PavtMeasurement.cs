@@ -60,6 +60,7 @@ namespace L2CapstoneProject
             Instr = InstrConfig.rfmxSession;
             //Instr = new RFmxInstrMX(InstrConfig.instrResourceName, "");
             Instr.ConfigureFrequencyReference("", RFmxInstrMXConstants.OnboardClock, 10.0e6);
+            //Instr.ConfigureAutomaticSGSASharedLO("",
         }
 
         private void ConfigureSpecAn()

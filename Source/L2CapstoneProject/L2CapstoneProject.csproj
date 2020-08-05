@@ -67,7 +67,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RFmxSpecAnPavt.cs" />
     <EmbeddedResource Include="frmBeamformerPavtController.resx">
       <DependentUpon>frmBeamformerPavtController.cs</DependentUpon>
     </EmbeddedResource>

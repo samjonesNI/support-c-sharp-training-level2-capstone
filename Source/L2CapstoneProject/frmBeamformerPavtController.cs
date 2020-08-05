@@ -52,7 +52,7 @@ namespace L2CapstoneProject
             //initiate defaults for debugging
             instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, 0));
             instrConfig.PAOList.Add(new PhaseAmplitudeOffset(10, -5));
-            //instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -10));
+            instrConfig.PAOList.Add(new PhaseAmplitudeOffset(0, -10));
             UpdateListBox();
 
         }

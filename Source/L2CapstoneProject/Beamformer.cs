@@ -94,7 +94,7 @@ namespace L2CapstoneProject
             //Rfsg.Abort();
             Rfsg.RF.PowerLevel = InstrConfig.power + pao.Amplitude;
             Rfsg.RF.PhaseOffset = pao.Phase;
-            Rfsg.Utility.WaitUntilSettled(5);
+            Rfsg.Utility.WaitUntilSettled(4);
             
             SpecAn.SendSoftwareEdgeTrigger();
            //Rfsg.Initiate();

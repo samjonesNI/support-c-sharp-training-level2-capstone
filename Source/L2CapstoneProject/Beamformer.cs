@@ -20,6 +20,7 @@ namespace L2CapstoneProject
         public abstract bool ConnectDUT();
         public abstract void DisconnectDUT();
 
+        //Should implement as interfaces to have more intuative inheritance
         //Used to change current pao for stepped beamformer
         public virtual void WriteOffset(PhaseAmplitudeOffset pao) { }
         //Loads a list of pao's into memory for the sequenced beamformer
